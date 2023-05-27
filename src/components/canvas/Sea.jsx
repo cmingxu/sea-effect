@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { useFrame } from '@react-three/fiber'
-import { useCursor, MeshDistortMaterial, Stats } from '@react-three/drei'
+import { useCursor, MeshDistortMaterial, Stats, PerspectiveCamera } from '@react-three/drei'
 import { Color, Vector2, Vector3, Vector4 } from 'three'
 
 import { useControls } from 'leva'
@@ -13,32 +13,34 @@ import { LinearToSRGB } from 'three/src/math/ColorManagement'
 
 const Sea = () => {
   const camera = useControls("camera", { 
-      x: 0.0, y: 0.75, z: 0.0
-    })
+    x: 0.0, y: 0.75, z: 0.0
+  })
 
   const lookat = useControls('lookat', {
-      x: -125.0, y: 25.0, z: -95.0
-    })
+    x: -125.0, y: 25.0, z: -95.0
+  })
 
   const lightDir = useControls('lightDir', {
-      x: -1.0, y: 0.8, z: -1.0
-    })
+    x: -1.0, y: 0.8, z: -1.0
+  })
 
-  const lightColour = useControls('lightColour', { r: 1.4, g: 0.8, b: 0.4 })
+  const lightColour = useControls('lightColour', 
+    { r: 1.4, g: 0.8, b: 0.4 })
+
   const surface = useControls('surface', {
-      specular: 6.0,
-      specularHardness: 512.0,
-      diffuse: 0.1,
-      attenDepth: -0.52,
-      attenScale: 0.2
-    })
+    specular: 6.0,
+    specularHardness: 512.0,
+    diffuse: 0.1,
+    attenDepth: -0.52,
+    attenScale: 0.2
+  })
 
-    const global = useControls('global', {
-      fog: 0.175,
-      reflections: true,
-      postEffects: true,
-      moveCamera: true,
-      param: 0.2 })
+  const global = useControls('global', {
+    fog: 0.175,
+    reflections: true,
+    postEffects: true,
+    moveCamera: true,
+    param: 0.2 })
 
 
   // This reference will give us direct access to the mesh
@@ -79,16 +81,19 @@ const Sea = () => {
   });
 
   return (
-    <mesh ref={mesh} position={[0, 0, 0]}  rotation={[-Math.PI / 2, 0, 0]} scale={4.5}>
-      <planeGeometry args={[100, 100]} />
-      <shaderMaterial
-        fragmentShader={FragmentShader} 
-        vertexShader={VertexShader}
-        uniforms={uniforms}
-        wireframe
-      />
-      <Stats />
-    </mesh>
+    <PerspectiveCamera position={[camera.x, camera.y, camera.z]}
+    lookAt={[ lookat.x, lookat.y, lookat.z ]}>
+      <mesh ref={mesh} position={[0, 0, 0]}  rotation={[-Math.PI / 2, 0, 0]} scale={1.5}>
+        <planeGeometry args={[100, 100]} />
+        <shaderMaterial
+          fragmentShader={FragmentShader} 
+          vertexShader={VertexShader}
+          uniforms={uniforms}
+        />
+
+        <Stats />
+      </mesh>
+    </PerspectiveCamera>
   );
 };
 

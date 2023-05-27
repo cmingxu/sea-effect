@@ -10,14 +10,13 @@ const Sea = dynamic(() => import('@/components/canvas/Sea'), { ssr: false })
 
 // Dom components go here
 export default function Page(props) {
-  return (<div> 
-  </div>)
+  return (<div> </div>) 
 }
 
 // Canvas components go here
 // It will receive same props as the Page component (from getStaticProps, etc.)
 Page.canvas = (props) => <Sea />
 
-    export async function getStaticProps() {
-      return { props: { title: 'Index' } }
-    }
+export async function getStaticProps() {
+  return { props: { title: 'Index' } }
+}
