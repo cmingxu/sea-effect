@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react'
 import { useRouter } from 'next/router'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useCursor, MeshDistortMaterial, Stats, PerspectiveCamera } from '@react-three/drei'
 import { Color, Vector2, Vector3, Vector4 } from 'three'
 
@@ -12,12 +12,12 @@ import { LinearToSRGB } from 'three/src/math/ColorManagement'
 
 
 const Sea = () => {
-  const camera = useControls("camera", { 
-    x: 0.0, y: 0.75, z: 0.0
+  const cameraIndicator = useControls("camera", { 
+    x:  0.0, y: 0.75, z: 0.0
   })
 
   const lookat = useControls('lookat', {
-    x: -125.0, y: 25.0, z: -95.0
+    x: 0, y: 0, z: 0
   })
 
   const lightDir = useControls('lightDir', {
@@ -56,7 +56,7 @@ const Sea = () => {
       return  {
         time: { value:  Date.now() - firstTime }, 
         resolution: { value: new Vector2(window.innerWidth, window.innerHeight) },
-        cameraPos: { value: new Vector3(camera.x, camera.y, camera.z) },
+        cameraPos: { value: new Vector3(cameraIndicator.x, cameraIndicator.y, cameraIndicator.z) },
         cameraLookAt: { value: new Vector3(lookat.x, lookat.y, lookat.z) },
         lightDir: { value: new Vector3(lightDir.x * len, lightDir.y * len, lightDir.z * len) },
         lightColour: { value: new Vector3(lightColour.r, lightColour.g, lightColour.b) },
@@ -72,28 +72,23 @@ const Sea = () => {
         attenScale: { value: surface.attenScale },
         param: { value: global.param }
       }
-    }, [lightDir, camera, surface, global, lightColour, lookat, firstTime]
+    }, [lightDir, cameraIndicator, surface, global, lightColour, lookat, firstTime]
   );
 
   useFrame((state) => {
-    const { clock } = state;
-    mesh.current.material.uniforms.time.value = clock.getElapsedTime();
+    const { clock, camera } = state;
+    camera.position.lerp(new Vector3(cameraIndicator.x, cameraIndicator.y, cameraIndicator.z), 0.2);
+    camera.lookAt(new Vector3(lookat.x, lookat.y, lookat.z));
   });
 
   return (
-    <PerspectiveCamera position={[camera.x, camera.y, camera.z]}
-    lookAt={[ lookat.x, lookat.y, lookat.z ]}>
-      <mesh ref={mesh} position={[0, 0, 0]}  rotation={[-Math.PI / 2, 0, 0]} scale={1.5}>
-        <planeGeometry args={[100, 100]} />
-        <shaderMaterial
-          fragmentShader={FragmentShader} 
-          vertexShader={VertexShader}
-          uniforms={uniforms}
-        />
-
-        <Stats />
-      </mesh>
-    </PerspectiveCamera>
+    <mesh ref={mesh} position={[0, 0, 0]}  rotation={[-Math.PI / 2, 0, 0]} scale={1.5}>
+      <planeGeometry args={[3, 3]} />
+      <shaderMaterial
+        fragmentShader={FragmentShader}
+      vertexShader={VertexShader}/>
+      <Stats />
+    </mesh>
   );
 };
 
